@@ -9,21 +9,7 @@
 ╚═════╝ ╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝ ╚═════╝╚═╝  ╚═╝
 ```
 
-> A terminal-based SCP Foundation database viewer. Access classified files directly from your command line.
-
----
-
-## Features
-
-- 🔍 **Lookup any SCP** by number directly from the SCP Wiki
-- 🎲 **Random SCP** — optionally filtered by object class
-- 🔴 **Color-coded by class** — Safe, Euclid, Keter, Thaumiel, Apollyon
-- ⚠️ **Dramatic warnings** for dangerous object classes
-- 🔐 **Clearance Level system** — set your access level and watch restricted SCPs get censored
-- ⬛ **Real redactions preserved** — `█████` from the original articles stay intact
-- ⭐ **Favorites** — save SCPs with personal notes
-- 📜 **History** — track your access log
-- 💾 **Local cache** — fetched SCPs are stored locally to avoid repeated requests
+> Access classified Foundation files directly from your terminal.
 
 ---
 
@@ -32,70 +18,113 @@
 ```bash
 git clone https://github.com/matheusc457/breach
 cd breach
+python -m venv .venv && source .venv/bin/activate
+pip install -r requirements.txt
+```
+
+To install the `breach` command globally:
+
+```bash
 pip install -e .
+```
+
+After this you can run `breach` directly instead of `python -m breach.cli`.
+
+---
+
+## Uninstall
+
+```bash
+pip uninstall breach
+```
+
+To also remove cached data and favorites:
+
+```bash
+rm -rf ~/.breach
 ```
 
 ---
 
 ## Usage
 
+> After running `pip install -e .` you can use the `breach` command directly.
+
+### Look up a SCP
 ```bash
-# Look up a specific SCP
 breach get 173
+breach get 682
+```
 
-# Random SCP
+### Random SCP
+```bash
 breach random
-
-# Random SCP filtered by class
 breach random keter
+breach random euclid
+```
 
-# Save to favorites while fetching
+### Favorites
+```bash
 breach get 049 --save --note "The Plague Doctor"
-
-# Manage favorites
 breach favorites list
-breach favorites add 682
-breach favorites remove 682
+breach favorites add 173
+breach favorites remove 173
+```
 
-# View access history
+### History
+```bash
 breach history show
 breach history clear
+```
 
-# Set your clearance level (1–5)
-breach config --level 3
+### Clearance Level
+```bash
+breach config --level 3   # restrict access
+breach config --level 5   # full access
 breach config --show
 ```
+
+---
+
+## Features
+
+- Fetches live data directly from the [SCP Wiki](https://scp-wiki.wikidot.com)
+- Color-coded output by object class
+- Original `████` redactions preserved from source articles
+- Clearance Level system — entries above your level are censored
+- Dramatic warnings for Keter and Apollyon class entities
+- Pagination for long entries
+- Local cache to avoid repeated requests
+- Favorites with personal notes
+- Access history log
+
+---
+
+## Object Classes
+
+| Class | Color |
+|---|---|
+| Safe | 🟢 Green |
+| Euclid | 🟡 Yellow |
+| Keter | 🔴 Red |
+| Thaumiel | 🟣 Magenta |
+| Apollyon | ⚫ Dark Red |
+| Neutralized | ⬜ Gray |
 
 ---
 
 ## Clearance Levels
 
 | Level | Access |
-|-------|--------|
-| 1     | Safe class only |
-| 2     | Safe + Euclid |
-| 3     | + Keter |
-| 4     | + Thaumiel / Archon |
-| 5     | Full access (default) |
-
-SCPs above your clearance level will appear heavily ████████ censored.
-
----
-
-## Object Class Colors
-
-| Class       | Color  |
-|-------------|--------|
-| Safe        | 🟢 Green |
-| Euclid      | 🟡 Yellow |
-| Keter       | 🔴 Red |
-| Thaumiel    | 🟣 Magenta |
-| Apollyon    | ⚫ Dark Red |
-| Neutralized | ⬜ Gray |
+|---|---|
+| 1 | Safe only |
+| 2 | Safe + Euclid |
+| 3 | + Keter |
+| 4 | + Thaumiel / Archon |
+| 5 | Full access |
 
 ---
 
 ## Disclaimer
 
-This project is a fan-made tool. All SCP content belongs to the [SCP Wiki](https://scp-wiki.wikidot.com/) and is licensed under [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/).
-
+All SCP content belongs to the [SCP Wiki](https://scp-wiki.wikidot.com) and is licensed under [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/). This project is not affiliated with the SCP Foundation.
