@@ -119,16 +119,27 @@ def print_scp(data: dict, user_level: int):
         padding=(1, 2),
     )
 
-    console.print(panel)
-
-    # Tags
+    # Tags line
+    tag_line = Text("\n  Tags: ", style="dim")
     if data.get("tags"):
-        tag_line = Text("  Tags: ", style="dim")
         for tag in data["tags"]:
             tag_line.append(f"[{tag}] ", style="dim cyan")
-        console.print(tag_line)
 
-    console.print(f"\n  [dim]Source: {data['url']}[/dim]\n")
+    source_line = f"\n  [dim]Source: {data['url']}[/dim]\n"
+
+    # Use pager for long content
+    desc = data.get("description") or ""
+    use_pager = len(desc) > 3000
+
+    if use_pager:
+        with console.pager(styles=True):
+            console.print(panel)
+            console.print(tag_line)
+            console.print(source_line)
+    else:
+        console.print(panel)
+        console.print(tag_line)
+        console.print(source_line)
 
 
 def print_favorites(favorites: list):
