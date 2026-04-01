@@ -76,11 +76,24 @@ def _extract_sections(content) -> dict:
     return sections
 
 
+def _clean_text(text: str) -> str:
+    """Remove wiki navigation artifacts like « SCP-172 | SCP-173 | SCP-174 »"""
+    import re
+    text = re.sub(r'«[^»]*»', '', text)
+    text = re.sub(r'\s{2,}', ' ', text)
+    return text.strip()
+
+
 def _get_tags(soup: BeautifulSoup) -> list[str]:
     tags_div = soup.find("div", class_="page-tags")
     if not tags_div:
         return []
-    return [a.get_text(strip=True) for a in tags_div.find_all("a")]
+    # Filter out internal wiki tags that start with _
+    return [
+        a.get_text(strip=True)
+        for a in tags_div.find_all("a")
+        if not a.get_text(strip=True).startswith("_")
+    ]
 
 
 def fetch_scp(number: int) -> dict | None:
@@ -116,8 +129,8 @@ def fetch_scp(number: int) -> dict | None:
             "title":        title,
             "url":          url,
             "object_class": obj_class,
-            "containment":  sections["containment"],
-            "description":  sections["description"],
+            "containment":  _clean_text(sections["containment"]) if sections["containment"] else None,
+            "description":  _clean_text(sections["description"]) if sections["description"] else None,
             "tags":         tags,
             "clearance_required": CLASS_CLEARANCE.get(obj_class_lower, 3),
             "is_warning":   obj_class_lower in WARNING_CLASSES,
