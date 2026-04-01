@@ -1,7 +1,7 @@
 import requests
 import random
 import re
-from bs4 import BeautifulSoup, NavigableString
+from bs4 import BeautifulSoup
 
 BASE_URL = "https://scp-wiki.wikidot.com/scp-{}"
 HEADERS = {
@@ -27,47 +27,53 @@ WARNING_CLASSES = {"keter", "apollyon", "archon"}
 def _extract_sections(content) -> dict:
     """Extract Item, Object Class, Containment, and Description from page content."""
     sections = {
-        "item":        None,
+        "item":         None,
         "object_class": None,
-        "containment": None,
-        "description": None,
+        "containment":  None,
+        "description":  None,
     }
 
-    # Collect all text blocks with their bold labels
-    current_label = None
-    current_text = []
+    # Remove license box and other noise before parsing
+    for noise in content.find_all(["div", "table"], class_=["licensebox", "footnotes", "creditRate"]):
+        noise.decompose()
 
-    for elem in content.descendants:
-        if elem.name == "strong":
-            # Save previous section
-            if current_label and current_text:
-                text = " ".join(current_text).strip()
-                _assign_section(sections, current_label, text)
-            current_label = elem.get_text(strip=True).rstrip(":")
-            current_text = []
-        elif current_label and isinstance(elem, NavigableString):
-            chunk = str(elem).strip()
-            if chunk:
-                current_text.append(chunk)
+    paragraphs = content.find_all("p")
+    last_label = None
 
-    # Save last section
-    if current_label and current_text:
-        text = " ".join(current_text).strip()
-        _assign_section(sections, current_label, text)
+    for p in paragraphs:
+        strong = p.find("strong")
+        if not strong:
+            # Continuation paragraph — append to last section
+            if last_label in ("containment", "description"):
+                extra = p.get_text(" ", strip=True)
+                if extra and sections[last_label]:
+                    sections[last_label] += " " + extra
+            continue
+
+        label_raw = strong.get_text(strip=True).rstrip(":")
+        label_lower = label_raw.lower()
+
+        # Text after the <strong> tag
+        strong.extract()
+        value = p.get_text(" ", strip=True).lstrip(":").strip()
+
+        if not value:
+            continue
+
+        if "item" in label_lower:
+            sections["item"] = value
+            last_label = "item"
+        elif "object class" in label_lower:
+            sections["object_class"] = value
+            last_label = "object_class"
+        elif "containment" in label_lower:
+            sections["containment"] = value
+            last_label = "containment"
+        elif "description" in label_lower:
+            sections["description"] = value
+            last_label = "description"
 
     return sections
-
-
-def _assign_section(sections: dict, label: str, text: str):
-    label_lower = label.lower()
-    if "item" in label_lower:
-        sections["item"] = text
-    elif "object class" in label_lower:
-        sections["object_class"] = text.strip()
-    elif "containment" in label_lower:
-        sections["containment"] = text
-    elif "description" in label_lower:
-        sections["description"] = text
 
 
 def _get_tags(soup: BeautifulSoup) -> list[str]:
