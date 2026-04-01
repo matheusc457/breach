@@ -18,24 +18,28 @@
 ```bash
 git clone https://github.com/matheusc457/breach
 cd breach
-python -m venv .venv && source .venv/bin/activate
-pip install -r requirements.txt
 ```
 
-To install the `breach` command globally:
+**Recommended — using pipx (runs globally without activating a venv):**
 
 ```bash
-pip install -e .
+pipx install -e .
 ```
 
-After this you can run `breach` directly instead of `python -m breach.cli`.
+**Alternative — using a virtual environment:**
+
+```bash
+python -m venv .venv && source .venv/bin/activate
+pip install -r requirements.txt
+pip install -e .
+```
 
 ---
 
 ## Uninstall
 
 ```bash
-pip uninstall breach
+pipx uninstall breach
 ```
 
 To also remove cached data and favorites:
@@ -128,3 +132,4 @@ breach config --show
 ## Disclaimer
 
 All SCP content belongs to the [SCP Wiki](https://scp-wiki.wikidot.com) and is licensed under [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/). This project is not affiliated with the SCP Foundation.
+
